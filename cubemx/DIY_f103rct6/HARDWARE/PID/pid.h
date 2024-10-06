@@ -42,7 +42,7 @@ void Motor_Set(float Left_PWM,float Right_PWM);
 //速度环
 void Motor_Set_Val(float left_val,float right_val);
 //位置环
-void Motor_Set_Dis(float target_dis);
+void Motor_Set_Dis(float target_dis,float range_val);
 #endif
 
 

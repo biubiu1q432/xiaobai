@@ -222,6 +222,8 @@ void TIM6_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+
+
 /*******************
 *  @brief  串口接收回调函数(weak),
 *  @param  UART_HandleTypeDef *huart---》huart4
@@ -229,15 +231,22 @@ void TIM6_IRQHandler(void)
 *
 *******************/
 extern UART_HandleTypeDef huart4;
+extern UART_HandleTypeDef huart5;
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+	//MPU
 	if( huart == &huart4)
 	{
 		/* 接收到的数据，写入UART接收FIFO */
 		atk_ms901m_uart_rx_fifo_write(&recieve_data, 1);                         
+		HAL_UART_Receive_IT(&huart4,&recieve_data,1);//把串口1接受到的数据放入recieve_data，每接收一个字符就进入一次中断
 	}
-	HAL_UART_Receive_IT(&huart4,&recieve_data,1);//把串口1接受到的数据放入 recieve_data，每接收一个字符就进入一次中断
+
+//	//Serial
+//	if( huart == &huart5)
+//	{
+//	}
 }
 
 /* USER CODE END 1 */

@@ -85,15 +85,25 @@ void Error_Handler(void);
 #define Serial_RX_GPIO_Port GPIOD
 
 /* USER CODE BEGIN Private defines */
-#define VAL_MAX		50				//最大速度	单位： cm/s
+
+
 #define MOTOR_ARR	1000			
-#define EC_ARR	65535		
+#define EC_ARR	65536.5			//反转数据 加入玄学调参，调整正反转误差		
 #define VAL_MAX_PWM 400			//pwm限幅输出
 #define ENCODER_TIME 0.010	//读取编码器时间	单位：s
-#define EC_1	1400				//电机转一圈编码器增量 1400
+#define LEFT_EC_1	1400			//电机转一圈编码器增量 1400
+#define RIGHT_EC_1	1400				//电机转一圈编码器增量 加入玄学调参，调整左右轮误差
 #define PI		3.1415926			
 #define D		  4.3						//轮子直径		单位	cm
 #define C_1		PI*D					//轮子的周长	单位  cm
+#define MIN_PWM 90
+
+
+
+
+
+
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

@@ -65,6 +65,7 @@ extern Pid incremental_pid;//ÔöÁ¿
 osThreadId MPU_TASKHandle;
 osThreadId SERIAL_TASKHandle;
 osThreadId TEST_TASKHandle;
+osThreadId PID_TASKHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -74,6 +75,7 @@ osThreadId TEST_TASKHandle;
 void Read_mpu(void const * argument);
 void Send_serial(void const * argument);
 void test(void const * argument);
+void PID_Control(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -131,6 +133,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of TEST_TASK */
   osThreadDef(TEST_TASK, test, osPriorityIdle, 0, 128);
   TEST_TASKHandle = osThreadCreate(osThread(TEST_TASK), NULL);
+
+  /* definition and creation of PID_TASK */
+  osThreadDef(PID_TASK, PID_Control, osPriorityHigh, 0, 128);
+  PID_TASKHandle = osThreadCreate(osThread(PID_TASK), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -196,6 +202,25 @@ void test(void const * argument)
 		osDelay(1000);
   }
   /* USER CODE END test */
+}
+
+/* USER CODE BEGIN Header_PID_Control */
+/**
+* @brief Function implementing the PID_TASK thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_PID_Control */
+void PID_Control(void const * argument)
+{
+  /* USER CODE BEGIN PID_Control */
+  /* Infinite loop */
+  for(;;)
+  {
+    Motor_Set_Dis(5,20);
+		osDelay(20);
+  }
+  /* USER CODE END PID_Control */
 }
 
 /* Private application code --------------------------------------------------*/

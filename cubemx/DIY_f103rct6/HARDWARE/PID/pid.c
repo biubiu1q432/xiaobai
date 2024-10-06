@@ -50,7 +50,6 @@ void PID_init()
 	right_incremental_pid.Ki=0.01;
 	right_incremental_pid.Kd=1;
 
-
 }
 
 /**************************************************************************
@@ -58,18 +57,17 @@ void PID_init()
 @para	：target_dis
 @return: void
 **************************************************************************/
-void Motor_Set_Dis(float target_dis)
+void Motor_Set_Dis(float target_dis,float range_val)
 {
 
-	//位置式
-	float val,pwm;
-	float acual_dis = (Left_Motor.Distance + Right_Motor.Distance)/2.000;//当前位置
 	local_pid.target_dis  = target_dis;
-	val = PID_realize(&local_pid,acual_dis);
-	
-	//速度式
+	float acual_dis = (Left_Motor.Distance + Right_Motor.Distance)/2.000;//当前位置
+	float val = PID_realize(&local_pid,acual_dis);
+	if(val > range_val && range_val > 0) val = range_val;
+	if(val < range_val && range_val < 0) val = range_val;
+
 	Motor_Set_Val(val,val);
-	
+		
 }
 
  
@@ -105,8 +103,9 @@ void Motor_Set(float Left_PWM,float Right_PWM)
 	if(Left_PWM <= 0){
 		//方向
 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,MOTOR_ARR);
-		//赋值
+		//限幅
 		if(Left_PWM<-MOTOR_ARR)Left_PWM=-MOTOR_ARR;
+		if(Left_PWM>-MIN_PWM)Left_PWM=0;
 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,MOTOR_ARR+Left_PWM);		
 	} 
 	
@@ -116,6 +115,7 @@ void Motor_Set(float Left_PWM,float Right_PWM)
 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,MOTOR_ARR);
 		//赋值
 		if(Left_PWM>MOTOR_ARR)Left_PWM=MOTOR_ARR;
+		if(Left_PWM<=MIN_PWM)Left_PWM=0;
 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,MOTOR_ARR-Left_PWM);
 	} 
 
@@ -127,6 +127,7 @@ void Motor_Set(float Left_PWM,float Right_PWM)
 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,MOTOR_ARR);
 		//赋值
 		if(Right_PWM<-MOTOR_ARR)Right_PWM=-MOTOR_ARR;
+		if(Right_PWM>-MIN_PWM)Right_PWM=0;
 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,MOTOR_ARR+Right_PWM);		
 	} 
 	
@@ -136,6 +137,7 @@ void Motor_Set(float Left_PWM,float Right_PWM)
 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,MOTOR_ARR);
 		//赋值
 		if(Right_PWM>MOTOR_ARR)Right_PWM=MOTOR_ARR;
+		if(Right_PWM<=MIN_PWM)Right_PWM=0;
 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,MOTOR_ARR-Right_PWM);
 	} 
 	
@@ -169,6 +171,10 @@ float PID_realize(Pid * pid,float actual_dis)
 	pid->output_val = pid->Kp*pid->err + pid->Ki*pid->err_sum + pid->Kd*(pid->err - pid->err_last);	
 	//保存上次误差: 这次误差赋值给上次误差
 	pid->err_last = pid->err;
+	
+	//限幅
+	if(pid->output_val < 0.5 && pid->output_val > 0) pid->output_val = 0;
+	if(pid->output_val > -0.5 && pid->output_val < 0) pid->output_val = 0;
 	
 	return pid->output_val;
 }

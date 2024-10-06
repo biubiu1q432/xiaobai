@@ -211,33 +211,32 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   /* USER CODE BEGIN Callback 1 */
 	if(htim == &htim6){
+		//0.01s
 		time_cnt++;
 		
 		/*编码器*/
 		int right_tmp_ec = __HAL_TIM_GET_COUNTER(&htim1);
 		__HAL_TIM_SET_COUNTER(&htim1,0);
 		if(right_tmp_ec > 60000)	right_tmp_ec = right_tmp_ec - EC_ARR;//正反
-
+		
 		float right_distance = 0;
 		Right_Motor.EncodeCount = -right_tmp_ec;	//编码器正负调整
-		right_distance = (float)(Right_Motor.EncodeCount/EC_1)*C_1;
+		right_distance = (float)(Right_Motor.EncodeCount/RIGHT_EC_1)*C_1;
 		Right_Motor.Distance += right_distance;
 		Right_Motor.Motorspeed = right_distance/ENCODER_TIME;
-		//printf("%.0f  					%.2f  			%.2f					%.2f  \n",Left_Motor.EncodeCount,left_distance,Left_Motor.Distance,Left_Motor.Motorspeed);
-
+		
 		int left_tmp_ec = __HAL_TIM_GET_COUNTER(&htim2);
 		__HAL_TIM_SET_COUNTER(&htim2,0);
 		if(left_tmp_ec > 60000)	left_tmp_ec = left_tmp_ec - EC_ARR;
 		
 		float left_distance = 0;
 		Left_Motor.EncodeCount = left_tmp_ec; //编码器正负调整
-		left_distance = (float)(Left_Motor.EncodeCount/EC_1)*C_1;
+		left_distance = (float)(Left_Motor.EncodeCount/LEFT_EC_1)*C_1;
 		Left_Motor.Distance += left_distance;
 		Left_Motor.Motorspeed = left_distance/ENCODER_TIME;
-	
-		/*PID*/
-		Motor_Set_Dis(26);
-		//Motor_Set_Val(0,-15);
+		
+
+		
 
 	}
   /* USER CODE END Callback 1 */
