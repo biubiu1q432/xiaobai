@@ -112,7 +112,9 @@ void atk_ms901m_rx_fifo_flush(void)
  */
 void atk_ms901m_uart_send(uint8_t *dat, uint8_t len)
 {
-    HAL_UART_Transmit(&huart4, dat, len, HAL_MAX_DELAY);
+    //HAL_UART_Transmit(&huart4, dat, len, HAL_MAX_DELAY);
+		HAL_UART_Transmit_IT(&huart4, dat, len);
+
 }
 
 /**
@@ -144,25 +146,25 @@ void atk_ms901m_uart_init()//uint32_t baudrate)
     g_uart_rx_fifo.writer = 0;                                      /* UART接收FIFO写指针 */
 }
 
-/**
- * @brief       ATK-MS901M UART中断回调函数
- * @param       无
- * @retval      无
- */
-void ATK_MS901M_UART_IRQHandler(void)
-{
-    uint8_t tmp;
-    
-    if (__HAL_UART_GET_FLAG(&huart4, UART_FLAG_ORE) != RESET)    /* UART接收过载错误中断 */
-    {
-        __HAL_UART_CLEAR_OREFLAG(&huart4);                       /* 清除接收过载错误中断标志 */
-        (void)huart4.Instance->SR;                               /* 先读SR寄存器，再读DR寄存器 */
-        (void)huart4.Instance->DR;
-    }
-    
-    if (__HAL_UART_GET_FLAG(&huart4, UART_FLAG_RXNE) != RESET)   /* UART接收中断 */
-    {
-        HAL_UART_Receive(&huart4, &tmp, 1, HAL_MAX_DELAY);       /* UART接收数据 */
-        atk_ms901m_uart_rx_fifo_write(&tmp, 1);                         /* 接收到的数据，写入UART接收FIFO */
-    }
-}
+///**
+// * @brief       ATK-MS901M UART中断回调函数
+// * @param       无
+// * @retval      无
+// */
+//void ATK_MS901M_UART_IRQHandler(void)
+//{
+//    uint8_t tmp;
+//    
+//    if (__HAL_UART_GET_FLAG(&huart4, UART_FLAG_ORE) != RESET)    /* UART接收过载错误中断 */
+//    {
+//        __HAL_UART_CLEAR_OREFLAG(&huart4);                       /* 清除接收过载错误中断标志 */
+//        (void)huart4.Instance->SR;                               /* 先读SR寄存器，再读DR寄存器 */
+//        (void)huart4.Instance->DR;
+//    }
+//    
+//    if (__HAL_UART_GET_FLAG(&huart4, UART_FLAG_RXNE) != RESET)   /* UART接收中断 */
+//    {
+//        HAL_UART_Receive(&huart4, &tmp, 1, HAL_MAX_DELAY);       /* UART接收数据 */
+//        atk_ms901m_uart_rx_fifo_write(&tmp, 1);                         /* 接收到的数据，写入UART接收FIFO */
+//    }
+//}

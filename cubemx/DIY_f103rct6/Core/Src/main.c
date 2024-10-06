@@ -56,6 +56,8 @@ extern Pid left_incremental_pid;//增量
 extern Pid right_incremental_pid;
 extern Motor_Stat Left_Motor;	/*左轮数据*/
 extern Motor_Stat Right_Motor;	/*右轮数据*/
+extern atk_ms901m_attitude_data_t attitude_dat;					 /* 姿态角 */
+
 short time_cnt = 0;
 //测试
 float temp1_pwm;

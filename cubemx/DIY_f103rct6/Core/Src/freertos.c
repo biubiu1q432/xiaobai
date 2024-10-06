@@ -63,9 +63,8 @@ extern Pid incremental_pid;//ÔöÁ¿
 
 /* USER CODE END Variables */
 osThreadId MPU_TASKHandle;
-osThreadId SERIAL_TASKHandle;
-osThreadId TEST_TASKHandle;
 osThreadId PID_TASKHandle;
+osThreadId SERIAL_TASKHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -73,9 +72,8 @@ osThreadId PID_TASKHandle;
 /* USER CODE END FunctionPrototypes */
 
 void Read_mpu(void const * argument);
-void Send_serial(void const * argument);
-void test(void const * argument);
 void PID_Control(void const * argument);
+void Read_Serial(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -123,20 +121,16 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of MPU_TASK */
-  osThreadDef(MPU_TASK, Read_mpu, osPriorityNormal, 0, 128);
+  osThreadDef(MPU_TASK, Read_mpu, osPriorityNormal, 0, 200);
   MPU_TASKHandle = osThreadCreate(osThread(MPU_TASK), NULL);
 
-  /* definition and creation of SERIAL_TASK */
-  osThreadDef(SERIAL_TASK, Send_serial, osPriorityIdle, 0, 128);
-  SERIAL_TASKHandle = osThreadCreate(osThread(SERIAL_TASK), NULL);
-
-  /* definition and creation of TEST_TASK */
-  osThreadDef(TEST_TASK, test, osPriorityIdle, 0, 128);
-  TEST_TASKHandle = osThreadCreate(osThread(TEST_TASK), NULL);
-
   /* definition and creation of PID_TASK */
-  osThreadDef(PID_TASK, PID_Control, osPriorityHigh, 0, 128);
+  osThreadDef(PID_TASK, PID_Control, osPriorityHigh, 0, 200);
   PID_TASKHandle = osThreadCreate(osThread(PID_TASK), NULL);
+
+  /* definition and creation of SERIAL_TASK */
+  osThreadDef(SERIAL_TASK, Read_Serial, osPriorityIdle, 0, 128);
+  SERIAL_TASKHandle = osThreadCreate(osThread(SERIAL_TASK), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -154,54 +148,15 @@ void MX_FREERTOS_Init(void) {
 void Read_mpu(void const * argument)
 {
   /* USER CODE BEGIN Read_mpu */
-  /* Infinite loop */
+	atk_ms901m_init();
+
+	/* Infinite loop */
   for(;;)
   {
-		uint8_t ret = atk_ms901m_init();
-		if(ret != 0)osDelay(100);
-		atk_ms901m_get_attitude(&attitude_dat,100);		
+		atk_ms901m_get_attitude(&attitude_dat,100);	
 		osDelay(100);
   }
   /* USER CODE END Read_mpu */
-}
-
-/* USER CODE BEGIN Header_Send_serial */
-/**
-* @brief Function implementing the SERIAL_TASK thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_Send_serial */
-void Send_serial(void const * argument)
-{
-  /* USER CODE BEGIN Send_serial */
-  /* Infinite loop */
-  for(;;)
-  {
-		osDelay(100);
-
-  }
-  /* USER CODE END Send_serial */
-}
-
-/* USER CODE BEGIN Header_test */
-/**
-* @brief Function implementing the TEST_TASK thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_test */
-void test(void const * argument)
-{
-  /* USER CODE BEGIN test */
-  /* Infinite loop */
-  for(;;)
-  {
-    HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
-		
-		osDelay(1000);
-  }
-  /* USER CODE END test */
 }
 
 /* USER CODE BEGIN Header_PID_Control */
@@ -214,13 +169,32 @@ void test(void const * argument)
 void PID_Control(void const * argument)
 {
   /* USER CODE BEGIN PID_Control */
-  /* Infinite loop */
+
+	/* Infinite loop */
   for(;;)
   {
-    Motor_Set_Dis(5,20);
+    Motor_Set_Dis(20,20);
 		osDelay(20);
   }
   /* USER CODE END PID_Control */
+}
+
+/* USER CODE BEGIN Header_Read_Serial */
+/**
+* @brief Function implementing the SERIAL_TASK thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Read_Serial */
+void Read_Serial(void const * argument)
+{
+  /* USER CODE BEGIN Read_Serial */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END Read_Serial */
 }
 
 /* Private application code --------------------------------------------------*/
